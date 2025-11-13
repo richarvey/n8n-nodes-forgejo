@@ -1,0 +1,49 @@
+{
+  "name": "Forgejo - Create File in Repository",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "repository",
+        "operation": "createFile",
+        "owner": "your-username",
+        "repository": "your-repo",
+        "filePath": "docs/README.md",
+        "content": "# Documentation\n\nThis file was created via n8n workflow.",
+        "message": "Add documentation file via n8n"
+      },
+      "id": "forgejo-node",
+      "name": "Forgejo - Create File",
+      "type": "n8n-nodes-forgejo.forgejo",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "forgejoApi": {
+          "id": "1",
+          "name": "Forgejo API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Forgejo - Create File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

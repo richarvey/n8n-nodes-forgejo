@@ -1,0 +1,47 @@
+{
+  "name": "Forgejo - List Repositories",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "repository",
+        "operation": "list",
+        "owner": "your-username",
+        "page": 1,
+        "limit": 50
+      },
+      "id": "forgejo-node",
+      "name": "Forgejo - List Repositories",
+      "type": "n8n-nodes-forgejo.forgejo",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "forgejoApi": {
+          "id": "1",
+          "name": "Forgejo API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Forgejo - List Repositories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

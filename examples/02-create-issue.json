@@ -1,0 +1,50 @@
+{
+  "name": "Forgejo - Create Issue",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "owner": "your-username",
+        "repository": "your-repo",
+        "title": "Sample Issue Title",
+        "body": "This is a sample issue created via n8n workflow",
+        "labels": "bug, documentation",
+        "assignees": "your-username"
+      },
+      "id": "forgejo-node",
+      "name": "Forgejo - Create Issue",
+      "type": "n8n-nodes-forgejo.forgejo",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "forgejoApi": {
+          "id": "1",
+          "name": "Forgejo API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Forgejo - Create Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

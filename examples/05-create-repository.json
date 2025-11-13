@@ -1,0 +1,48 @@
+{
+  "name": "Forgejo - Create Repository",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "repository",
+        "operation": "create",
+        "name": "my-new-repo",
+        "description": "A repository created via n8n workflow",
+        "private": false,
+        "autoInit": true
+      },
+      "id": "forgejo-node",
+      "name": "Forgejo - Create Repo",
+      "type": "n8n-nodes-forgejo.forgejo",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "forgejoApi": {
+          "id": "1",
+          "name": "Forgejo API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Forgejo - Create Repo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}

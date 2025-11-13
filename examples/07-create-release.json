@@ -1,0 +1,51 @@
+{
+  "name": "Forgejo - Create Release",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "release",
+        "operation": "create",
+        "owner": "your-username",
+        "repository": "your-repo",
+        "tagName": "v1.0.0",
+        "name": "Version 1.0.0",
+        "body": "Release notes for version 1.0.0\n\n- Feature 1\n- Feature 2\n- Bug fixes",
+        "draft": false,
+        "prerelease": false
+      },
+      "id": "forgejo-node",
+      "name": "Forgejo - Create Release",
+      "type": "n8n-nodes-forgejo.forgejo",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "forgejoApi": {
+          "id": "1",
+          "name": "Forgejo API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Forgejo - Create Release",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {}
+}
