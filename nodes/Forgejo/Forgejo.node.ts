@@ -948,10 +948,26 @@ export class Forgejo implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['repository', 'commit'],
-						operation: ['updateFile', 'deleteFile', 'get', 'getStatus', 'createStatus', 'listStatuses'],
+						operation: ['updateFile', 'deleteFile', 'getStatus', 'createStatus', 'listStatuses'],
 					},
 				},
 				description: 'SHA hash of the file/commit',
+			},
+
+			// SHA (optional, for commit get)
+			{
+				displayName: 'SHA',
+				name: 'sha',
+				type: 'string',
+				default: '',
+				required: false,
+				displayOptions: {
+					show: {
+						resource: ['commit'],
+						operation: ['get'],
+					},
+				},
+				description: 'SHA hash of the commit. Leave empty to fetch the latest commit from the default branch.',
 			},
 
 			// ===============================================
@@ -2350,7 +2366,14 @@ export class Forgejo implements INodeType {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const sha = this.getNodeParameter('sha', i) as string;
-						endpoint = `/repos/${owner}/${repo}/git/commits/${sha}`;
+
+						// If SHA is not provided, fetch the latest commit
+						if (!sha || sha.trim() === '') {
+							endpoint = `/repos/${owner}/${repo}/commits`;
+							qs = { page: 1, limit: 1 };
+						} else {
+							endpoint = `/repos/${owner}/${repo}/git/commits/${sha}`;
+						}
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
