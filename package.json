@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-forgejo",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "n8n node for Forgejo API integration",
   "keywords": [
     "n8n-community-node-package",
@@ -10,14 +10,14 @@
     "devops"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/Sqcows/n8n-nodes-forgejo",
+  "homepage": "https://code.squarecows.com/ric/n8n-nodes-forgejo",
   "author": {
     "name": "Ric Harvey",
     "email": "ric@sqcows.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Sqcows/n8n-nodes-forgejo.git"
+    "url": "https://code.squarecows.com/ric/n8n-nodes-forgejo.git"
   },
   "engines": {
     "node": ">=18.10",
