@@ -741,7 +741,6 @@ export class Forgejo implements INodeType {
 							'createFile',
 							'updateFile',
 							'deleteFile',
-							'list',
 							'create',
 							'addComment',
 							'listComments',
