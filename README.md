@@ -106,7 +106,7 @@ If you want to contribute or modify this node:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/n8n-nodes-forgejo.git
+git clone https://code.squarecows.com/ric/n8n-nodes-forgejo.git
 cd n8n-nodes-forgejo
 
 # Install dependencies
@@ -128,4 +128,4 @@ npm run format
 
 ## Support
 
-For bugs or feature requests, please open an issue on the [GitHub repository](https://github.com/yourusername/n8n-nodes-forgejo/issues).
+For bugs or feature requests, please open an issue on the [Forgejo repository](https://code.squarecows.com/ric/n8n-nodes-forgejo/issues).

@@ -31,7 +31,10 @@
     "format": "prettier nodes credentials --write",
     "lint": "eslint 'nodes/**/*.ts' 'credentials/**/*.ts'",
     "lintfix": "eslint 'nodes/**/*.ts' 'credentials/**/*.ts' --fix",
-    "prepublishOnly": "npm run build && npm run lint"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build && npm run lint && npm run test"
   },
   "files": [
     "dist"
@@ -46,14 +49,18 @@
     ]
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^8.56.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "gulp": "^5.0.1",
+    "jest": "^30.2.0",
     "n8n-workflow": "^1.17.0",
     "prettier": "^3.3.2",
+    "ts-jest": "^29.4.5",
     "typescript": "^5.5.3"
   },
   "peerDependencies": {
