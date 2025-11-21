@@ -9,6 +9,7 @@ export class ForgejoApi implements ICredentialType {
 	name = 'forgejoApi';
 	displayName = 'Forgejo API';
 	documentationUrl = 'https://forgejo.org/docs/latest/user/api-usage/';
+	icon = 'file:forgejo.svg';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Forgejo Server URL',
