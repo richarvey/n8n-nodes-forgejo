@@ -5,10 +5,21 @@ export const createMockExecuteFunctions = (
 	credentials: Record<string, any> = {},
 	inputData: INodeExecutionData[] = [{ json: {} }]
 ): Partial<IExecuteFunctions> => {
+	// Auto-wrap page and limit in additionalOptions if they exist at top level
+	const processedParameters = { ...parameters };
+	if ('page' in parameters || 'limit' in parameters) {
+		processedParameters.additionalOptions = {
+			...(parameters.page !== undefined && { page: parameters.page }),
+			...(parameters.limit !== undefined && { limit: parameters.limit }),
+		};
+		delete processedParameters.page;
+		delete processedParameters.limit;
+	}
+
 	return {
 		getInputData: jest.fn(() => inputData),
-		getNodeParameter: jest.fn((parameterName: string, itemIndex: number) => {
-			return parameters[parameterName];
+		getNodeParameter: jest.fn((parameterName: string, itemIndex: number, defaultValue?: any) => {
+			return processedParameters[parameterName] ?? defaultValue;
 		}),
 		getCredentials: jest.fn(async () => credentials),
 		helpers: {

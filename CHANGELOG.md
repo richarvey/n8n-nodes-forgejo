@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-11-21
+
+### Changed
+- **Improved UX**: Pagination parameters (`Page` and `Limit`) are now optional and hidden by default
+  - These parameters are now under an "Additional Options" section for all list operations
+  - Default values (Page: 1, Limit: 50) are automatically applied when not specified
+  - Results in a cleaner, less confusing interface for users who don't need custom pagination settings
+  - Advanced users can still customize pagination by expanding "Additional Options"
+  - Affects all 23 paginated operations across all resources
+
+### Added
+- New test cases for pagination with custom limit values
+- Test coverage for real-world scenario with 78 repositories across multiple pages
+- Documentation for server-enforced limit behavior
+
+## [0.1.1] - 2025-11-21
+
+### Fixed
+- npm security vulnerabilities
+
 ## [0.1.0] - 2025-11-21
 
 ### Changed
@@ -77,6 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Authentication via API token
 - Comprehensive node description and parameter definitions
 
+[0.1.2]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.1...0.1.2
+[0.1.1]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.0...0.1.1
 [0.1.0]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.0.4...0.1.0
 [0.0.4]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.0.3...0.0.4
 [0.0.3]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.0.2...0.0.3

@@ -294,6 +294,131 @@ describe('Forgejo Node - Repository Operations', () => {
 			// Should return 10 items
 			expect(result[0]).toHaveLength(10);
 		});
+
+		test('should fetch all 78 repositories with default limit of 50 (real-world scenario)', async () => {
+			// Simulate Forgejo API with max 50 items per page
+			const page1Data = Array(50).fill(null).map((_, i) => ({
+				...mockRepositoryData,
+				id: i + 1,
+				name: `repo-${i + 1}`
+			}));
+
+			const page2Data = Array(28).fill(null).map((_, i) => ({
+				...mockRepositoryData,
+				id: i + 51,
+				name: `repo-${i + 51}`
+			}));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
+
+			const mockFunctions = {
+				...createMockExecuteFunctions(
+					{
+						resource: 'repository',
+						operation: 'list',
+						owner: 'testuser',
+						page: 1,
+						limit: 50,
+					},
+					mockCredentials
+				),
+				helpers: {
+					httpRequestWithAuthentication: mockHttpRequest,
+				},
+				continueOnFail: jest.fn(() => false),
+			} as unknown as IExecuteFunctions;
+
+			const result = await forgejoNode.execute.call(mockFunctions);
+
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+			expect(result[0]).toHaveLength(78);
+		});
+
+		test('should fetch all pages when user sets custom limit value of 30', async () => {
+			const page1Data = Array(30).fill(null).map((_, i) => ({
+				...mockRepositoryData,
+				id: i + 1,
+				name: `repo-${i + 1}`
+			}));
+
+			const page2Data = Array(30).fill(null).map((_, i) => ({
+				...mockRepositoryData,
+				id: i + 31,
+				name: `repo-${i + 31}`
+			}));
+
+			const page3Data = Array(18).fill(null).map((_, i) => ({
+				...mockRepositoryData,
+				id: i + 61,
+				name: `repo-${i + 61}`
+			}));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
+
+			const mockFunctions = {
+				...createMockExecuteFunctions(
+					{
+						resource: 'repository',
+						operation: 'list',
+						owner: 'testuser',
+						page: 1,
+						limit: 30,
+					},
+					mockCredentials
+				),
+				helpers: {
+					httpRequestWithAuthentication: mockHttpRequest,
+				},
+				continueOnFail: jest.fn(() => false),
+			} as unknown as IExecuteFunctions;
+
+			const result = await forgejoNode.execute.call(mockFunctions);
+
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+			expect(result[0]).toHaveLength(78);
+		});
+
+		test('should handle server-enforced limit when user sets very large limit value', async () => {
+			// When user requests limit=100 but Forgejo API enforces max 50 per page,
+			// the current pagination logic stops after the first page since 50 < 100
+			// This is a known limitation when server limit < requested limit
+			const page1Data = Array(50).fill(null).map((_, i) => ({
+				...mockRepositoryData,
+				id: i + 1,
+				name: `repo-${i + 1}`
+			}));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data);
+
+			const mockFunctions = {
+				...createMockExecuteFunctions(
+					{
+						resource: 'repository',
+						operation: 'list',
+						owner: 'testuser',
+						page: 1,
+						limit: 100,
+					},
+					mockCredentials
+				),
+				helpers: {
+					httpRequestWithAuthentication: mockHttpRequest,
+				},
+				continueOnFail: jest.fn(() => false),
+			} as unknown as IExecuteFunctions;
+
+			const result = await forgejoNode.execute.call(mockFunctions);
+
+			// Current behavior: only fetches first page when server enforces lower limit
+			expect(mockHttpRequest).toHaveBeenCalledTimes(1);
+			expect(result[0]).toHaveLength(50);
+		});
 	});
 
 	describe('Repository Search Operation', () => {

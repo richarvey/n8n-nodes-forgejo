@@ -1721,35 +1721,36 @@ export class Forgejo implements INodeType {
 			},
 
 			// ===============================================
-			// Pagination Fields
+			// Additional Options (Optional Pagination Fields)
 			// ===============================================
 
-			// Page
 			{
-				displayName: 'Page',
-				name: 'page',
-				type: 'number',
-				default: 1,
+				displayName: 'Additional Options',
+				name: 'additionalOptions',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
 				displayOptions: {
 					show: {
 						operation: ['list', 'search', 'listComments', 'listCommits', 'listFiles', 'listAssets', 'listMembers', 'listRepositories', 'listTeams', 'listStatuses'],
 					},
 				},
-				description: 'Page number',
-			},
-
-			// Limit
-			{
-				displayName: 'Limit',
-				name: 'limit',
-				type: 'number',
-				default: 50,
-				displayOptions: {
-					show: {
-						operation: ['list', 'search', 'listComments', 'listCommits', 'listFiles', 'listAssets', 'listMembers', 'listRepositories', 'listTeams', 'listStatuses'],
+				options: [
+					{
+						displayName: 'Page',
+						name: 'page',
+						type: 'number',
+						default: 1,
+						description: 'Page number to start from (default: 1). Note: Automatic pagination fetches all pages regardless of this value.',
 					},
-				},
-				description: 'Maximum number of results to return',
+					{
+						displayName: 'Limit',
+						name: 'limit',
+						type: 'number',
+						default: 50,
+						description: 'Maximum number of results per page (default: 50). Note: Server may enforce a lower maximum.',
+					},
+				],
 			},
 
 			// Reference (for contents)
@@ -1822,14 +1823,16 @@ export class Forgejo implements INodeType {
 						endpoint = `/repos/${owner}/${repo}`;
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/users/${owner}/repos`;
 						qs = { page, limit };
 					} else if (operation === 'search') {
 						const query = this.getNodeParameter('query', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = '/repos/search';
 						qs = { q: query, page, limit };
 					} else if (operation === 'getContents') {
@@ -1939,14 +1942,16 @@ export class Forgejo implements INodeType {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const state = this.getNodeParameter('state', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/issues`;
 						qs = { state, page, limit };
 					} else if (operation === 'search') {
 						const query = this.getNodeParameter('query', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = '/repos/issues/search';
 						qs = { q: query, page, limit };
 					} else if (operation === 'addComment') {
@@ -1961,8 +1966,9 @@ export class Forgejo implements INodeType {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const issueNumber = this.getNodeParameter('issueNumber', i) as number;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/issues/${issueNumber}/comments`;
 						qs = { page, limit };
 					} else if (operation === 'editLabels') {
@@ -2045,8 +2051,9 @@ export class Forgejo implements INodeType {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const state = this.getNodeParameter('state', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/pulls`;
 						qs = { state, page, limit };
 					} else if (operation === 'merge') {
@@ -2075,16 +2082,18 @@ export class Forgejo implements INodeType {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const prNumber = this.getNodeParameter('pullRequestNumber', i) as number;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/pulls/${prNumber}/commits`;
 						qs = { page, limit };
 					} else if (operation === 'listFiles') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const prNumber = this.getNodeParameter('pullRequestNumber', i) as number;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/pulls/${prNumber}/files`;
 						qs = { page, limit };
 					}
@@ -2100,26 +2109,30 @@ export class Forgejo implements INodeType {
 					} else if (operation === 'getAuthenticatedUser') {
 						endpoint = '/user';
 					} else if (operation === 'list') {
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = '/users';
 						qs = { page, limit };
 					} else if (operation === 'search') {
 						const query = this.getNodeParameter('query', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = '/users/search';
 						qs = { q: query, page, limit };
 					} else if (operation === 'getRepositories') {
 						const username = this.getNodeParameter('username', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/users/${username}/repos`;
 						qs = { page, limit };
 					} else if (operation === 'getOrganizations') {
 						const username = this.getNodeParameter('username', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/users/${username}/orgs`;
 						qs = { page, limit };
 					}
@@ -2161,26 +2174,30 @@ export class Forgejo implements INodeType {
 						const org = this.getNodeParameter('organization', i) as string;
 						endpoint = `/orgs/${org}`;
 					} else if (operation === 'list') {
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = '/orgs';
 						qs = { page, limit };
 					} else if (operation === 'listMembers') {
 						const org = this.getNodeParameter('organization', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/orgs/${org}/members`;
 						qs = { page, limit };
 					} else if (operation === 'listRepositories') {
 						const org = this.getNodeParameter('organization', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/orgs/${org}/repos`;
 						qs = { page, limit };
 					} else if (operation === 'listTeams') {
 						const org = this.getNodeParameter('organization', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/orgs/${org}/teams`;
 						qs = { page, limit };
 					}
@@ -2240,16 +2257,18 @@ export class Forgejo implements INodeType {
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/releases`;
 						qs = { page, limit };
 					} else if (operation === 'listAssets') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const releaseId = this.getNodeParameter('releaseId', i) as number;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/releases/${releaseId}/assets`;
 						qs = { page, limit };
 					} else if (operation === 'uploadAsset') {
@@ -2317,8 +2336,9 @@ export class Forgejo implements INodeType {
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/hooks`;
 						qs = { page, limit };
 					} else if (operation === 'test') {
@@ -2359,8 +2379,9 @@ export class Forgejo implements INodeType {
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/branches`;
 						qs = { page, limit };
 					} else if (operation === 'getProtection') {
@@ -2418,8 +2439,9 @@ export class Forgejo implements INodeType {
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/tags`;
 						qs = { page, limit };
 					}
@@ -2444,8 +2466,9 @@ export class Forgejo implements INodeType {
 					} else if (operation === 'list') {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/commits`;
 						qs = { page, limit };
 					} else if (operation === 'getStatus') {
@@ -2479,8 +2502,9 @@ export class Forgejo implements INodeType {
 						const owner = this.getNodeParameter('owner', i) as string;
 						const repo = this.getNodeParameter('repository', i) as string;
 						const sha = this.getNodeParameter('sha', i) as string;
-						const page = this.getNodeParameter('page', i) as number;
-						const limit = this.getNodeParameter('limit', i) as number;
+						const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as IDataObject;
+						const page = (additionalOptions.page as number) || 1;
+						const limit = (additionalOptions.limit as number) || 50;
 						endpoint = `/repos/${owner}/${repo}/commits/${sha}/statuses`;
 						qs = { page, limit };
 					}
