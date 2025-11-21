@@ -239,8 +239,13 @@ describe('Forgejo Node - Issue Operations', () => {
 	});
 
 	describe('Issue List Operation', () => {
-		test('should list issues with state filter', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockIssueData]);
+		test('should fetch all pages of issues automatically', async () => {
+			const page1Data = Array(50).fill(null).map((_, i) => ({ ...mockIssueData, number: i + 1 }));
+			const page2Data = Array(30).fill(null).map((_, i) => ({ ...mockIssueData, number: i + 51 }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -261,9 +266,13 @@ describe('Forgejo Node - Issue Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -276,12 +285,20 @@ describe('Forgejo Node - Issue Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 80 items
+			expect(result[0]).toHaveLength(80);
 		});
 	});
 
 	describe('Issue Search Operation', () => {
-		test('should search issues with query', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockIssueData]);
+		test('should fetch all pages of search results automatically', async () => {
+			const page1Data = { data: Array(50).fill(null).map((_, i) => ({ ...mockIssueData, number: i + 1 })) };
+			const page2Data = { data: Array(20).fill(null).map((_, i) => ({ ...mockIssueData, number: i + 51 })) };
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -300,9 +317,13 @@ describe('Forgejo Node - Issue Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -315,6 +336,9 @@ describe('Forgejo Node - Issue Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 70 items
+			expect(result[0]).toHaveLength(70);
 		});
 	});
 
@@ -355,8 +379,13 @@ describe('Forgejo Node - Issue Operations', () => {
 			);
 		});
 
-		test('should list issue comments', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ body: 'Comment 1' }]);
+		test('should fetch all pages of comments automatically', async () => {
+			const page1Data = Array(50).fill(null).map((_, i) => ({ id: i + 1, body: `Comment ${i + 1}` }));
+			const page2Data = Array(15).fill(null).map((_, i) => ({ id: i + 51, body: `Comment ${i + 51}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -377,9 +406,13 @@ describe('Forgejo Node - Issue Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -391,6 +424,9 @@ describe('Forgejo Node - Issue Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 65 comments
+			expect(result[0]).toHaveLength(65);
 		});
 	});
 

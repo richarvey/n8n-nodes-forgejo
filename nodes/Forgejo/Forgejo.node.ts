@@ -8,7 +8,75 @@ import type {
 	IHttpRequestOptions,
 } from 'n8n-workflow';
 
+// Helper function to fetch all pages
+async function fetchAllPages(
+	context: IExecuteFunctions,
+	baseUrl: string,
+	endpoint: string,
+	method: IHttpRequestMethods,
+	qs: IDataObject,
+	body: IDataObject,
+	limit: number,
+): Promise<any[]> {
+	const allResults: any[] = [];
+	let page = 1;
+	let hasMorePages = true;
+
+	while (hasMorePages) {
+		const requestOptions: IHttpRequestOptions = {
+			method,
+			url: `${baseUrl}${endpoint}`,
+			json: true,
+			qs: { ...qs, page, limit },
+		};
+
+		if (Object.keys(body).length > 0) {
+			requestOptions.body = body;
+		}
+
+		const response = await context.helpers.httpRequestWithAuthentication.call(
+			context,
+			'forgejoApi',
+			requestOptions,
+		);
+
+		// Check if response is empty or has no results
+		if (Array.isArray(response)) {
+			if (response.length === 0) {
+				hasMorePages = false;
+			} else {
+				allResults.push(...response);
+				// If we got fewer results than the limit, we've reached the last page
+				if (response.length < limit) {
+					hasMorePages = false;
+				}
+			}
+		} else if (response && response.data && Array.isArray(response.data)) {
+			// Handle search API responses that wrap results in a 'data' field
+			if (response.data.length === 0) {
+				hasMorePages = false;
+			} else {
+				allResults.push(...response.data);
+				if (response.data.length < limit) {
+					hasMorePages = false;
+				}
+			}
+		} else {
+			// Single object response, not paginated
+			if (response) {
+				allResults.push(response);
+			}
+			hasMorePages = false;
+		}
+
+		page++;
+	}
+
+	return allResults;
+}
+
 export class Forgejo implements INodeType {
+
 	description: INodeTypeDescription = {
 		displayName: 'Forgejo',
 		name: 'forgejo',
@@ -2418,26 +2486,38 @@ export class Forgejo implements INodeType {
 					}
 				}
 
-				// Make the HTTP request
-				const requestOptions: IHttpRequestOptions = {
-					method,
-					url: `${baseUrl}${endpoint}`,
-					json: true,
-				};
+				// Check if this is a paginated operation
+				const isPaginatedOperation = qs && 'page' in qs && 'limit' in qs;
+				let response: any;
 
-				if (Object.keys(qs).length > 0) {
-					requestOptions.qs = qs;
+				if (isPaginatedOperation) {
+					// Use pagination helper to fetch all pages
+					const limit = qs.limit as number;
+					// Remove page and limit from qs as they'll be handled by the helper
+					const { page, limit: _, ...otherQs } = qs;
+					response = await fetchAllPages(this, baseUrl, endpoint, method, otherQs, body, limit);
+				} else {
+					// Make a single HTTP request
+					const requestOptions: IHttpRequestOptions = {
+						method,
+						url: `${baseUrl}${endpoint}`,
+						json: true,
+					};
+
+					if (Object.keys(qs).length > 0) {
+						requestOptions.qs = qs;
+					}
+
+					if (Object.keys(body).length > 0) {
+						requestOptions.body = body;
+					}
+
+					response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'forgejoApi',
+						requestOptions,
+					);
 				}
-
-				if (Object.keys(body).length > 0) {
-					requestOptions.body = body;
-				}
-
-				const response = await this.helpers.httpRequestWithAuthentication.call(
-					this,
-					'forgejoApi',
-					requestOptions,
-				);
 
 				// Handle the response
 				if (Array.isArray(response)) {

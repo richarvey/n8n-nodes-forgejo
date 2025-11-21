@@ -2,7 +2,7 @@ import { Forgejo } from '../../../nodes/Forgejo/Forgejo.node';
 import { createMockExecuteFunctions, mockCredentials } from '../../mocks/mockFunctions';
 import type { IExecuteFunctions } from 'n8n-workflow';
 
-describe('Forgejo Node - Commit Operations', () => {
+describe('Forgejo Node - Commit Basic Operations', () => {
 	let forgejoNode: Forgejo;
 
 	const mockCommitData = {
@@ -21,6 +21,11 @@ describe('Forgejo Node - Commit Operations', () => {
 
 	beforeEach(() => {
 		forgejoNode = new Forgejo();
+	});
+
+	afterEach(() => {
+		jest.clearAllMocks();
+		jest.restoreAllMocks();
 	});
 
 	describe('Commit Get Operation', () => {
@@ -87,45 +92,6 @@ describe('Forgejo Node - Commit Operations', () => {
 					qs: {
 						page: 1,
 						limit: 1,
-					},
-				})
-			);
-		});
-	});
-
-	describe('Commit List Operation', () => {
-		test('should list commits with pagination', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockCommitData]);
-
-			const mockFunctions = {
-				...createMockExecuteFunctions(
-					{
-						resource: 'commit',
-						operation: 'list',
-						owner: 'testuser',
-						repository: 'test-repo',
-						page: 1,
-						limit: 50,
-					},
-					mockCredentials
-				),
-				helpers: {
-					httpRequestWithAuthentication: mockHttpRequest,
-				},
-				continueOnFail: jest.fn(() => false),
-			} as unknown as IExecuteFunctions;
-
-			await forgejoNode.execute.call(mockFunctions);
-
-			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'forgejoApi',
-				expect.objectContaining({
-					method: 'GET',
-					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/commits',
-					json: true,
-					qs: {
-						page: 1,
-						limit: 50,
 					},
 				})
 			);
@@ -241,44 +207,6 @@ describe('Forgejo Node - Commit Operations', () => {
 					json: true,
 					body: {
 						state: 'pending',
-					},
-				})
-			);
-		});
-
-		test('should list commit statuses', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ state: 'success' }]);
-
-			const mockFunctions = {
-				...createMockExecuteFunctions(
-					{
-						resource: 'commit',
-						operation: 'listStatuses',
-						owner: 'testuser',
-						repository: 'test-repo',
-						sha: 'abc123def456',
-						page: 1,
-						limit: 50,
-					},
-					mockCredentials
-				),
-				helpers: {
-					httpRequestWithAuthentication: mockHttpRequest,
-				},
-				continueOnFail: jest.fn(() => false),
-			} as unknown as IExecuteFunctions;
-
-			await forgejoNode.execute.call(mockFunctions);
-
-			expect(mockHttpRequest).toHaveBeenCalledWith(
-				'forgejoApi',
-				expect.objectContaining({
-					method: 'GET',
-					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/commits/abc123def456/statuses',
-					json: true,
-					qs: {
-						page: 1,
-						limit: 50,
 					},
 				})
 			);

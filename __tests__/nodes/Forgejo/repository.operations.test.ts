@@ -181,8 +181,16 @@ describe('Forgejo Node - Repository Operations', () => {
 	});
 
 	describe('Repository List Operation', () => {
-		test('should construct correct endpoint with pagination parameters', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockRepositoryData]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for 3 pages
+			const page1Data = Array(10).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 1 }));
+			const page2Data = Array(10).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 11 }));
+			const page3Data = Array(5).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 21 }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -201,9 +209,14 @@ describe('Forgejo Node - Repository Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -215,12 +228,83 @@ describe('Forgejo Node - Repository Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/users/testuser/repos',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 10,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/users/testuser/repos',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 10,
+					},
+				})
+			);
+
+			// Should return all 25 items
+			expect(result[0]).toHaveLength(25);
+		});
+
+		test('should stop pagination when empty response is received', async () => {
+			const page1Data = Array(10).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 1 }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce([]);
+
+			const mockFunctions = {
+				...createMockExecuteFunctions(
+					{
+						resource: 'repository',
+						operation: 'list',
+						owner: 'testuser',
+						page: 1,
+						limit: 10,
+					},
+					mockCredentials
+				),
+				helpers: {
+					httpRequestWithAuthentication: mockHttpRequest,
+				},
+				continueOnFail: jest.fn(() => false),
+			} as unknown as IExecuteFunctions;
+
+			const result = await forgejoNode.execute.call(mockFunctions);
+
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+			// Should return 10 items
+			expect(result[0]).toHaveLength(10);
 		});
 	});
 
 	describe('Repository Search Operation', () => {
-		test('should construct correct endpoint with search query', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockRepositoryData]);
+		test('should fetch all pages automatically for search', async () => {
+			// Mock search responses with data wrapped in 'data' field
+			const page1Data = { data: Array(10).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 1 })) };
+			const page2Data = { data: Array(7).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 11 })) };
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -239,9 +323,14 @@ describe('Forgejo Node - Repository Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests (stops on page 2 because less than limit)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -254,6 +343,43 @@ describe('Forgejo Node - Repository Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 17 items
+			expect(result[0]).toHaveLength(17);
+		});
+
+		test('should handle search API response format with data field', async () => {
+			// Mock responses for 2 pages of search results
+			const page1Data = { data: Array(10).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 1, name: `repo${i + 1}` })) };
+			const page2Data = { data: Array(5).fill(null).map((_, i) => ({ ...mockRepositoryData, id: i + 11, name: `repo${i + 11}` })) };
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
+
+			const mockFunctions = {
+				...createMockExecuteFunctions(
+					{
+						resource: 'repository',
+						operation: 'search',
+						query: 'test',
+						page: 1,
+						limit: 10,
+					},
+					mockCredentials
+				),
+				helpers: {
+					httpRequestWithAuthentication: mockHttpRequest,
+				},
+				continueOnFail: jest.fn(() => false),
+			} as unknown as IExecuteFunctions;
+
+			const result = await forgejoNode.execute.call(mockFunctions);
+
+			// Should make 2 requests (full page, then partial page)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+			// Should return all 15 items
+			expect(result[0]).toHaveLength(15);
 		});
 	});
 

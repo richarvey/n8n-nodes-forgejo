@@ -204,8 +204,16 @@ describe('Forgejo Node - Tag Operations', () => {
 	});
 
 	describe('Tag List Operation', () => {
-		test('should list tags with pagination', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockTagData]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ ...mockTagData, name: `v1.0.${i + 1}` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ ...mockTagData, name: `v1.0.${i + 51}` }));
+			const page3Data = Array(26).fill(null).map((_, i) => ({ ...mockTagData, name: `v1.0.${i + 101}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -225,9 +233,14 @@ describe('Forgejo Node - Tag Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -239,6 +252,39 @@ describe('Forgejo Node - Tag Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/tags',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/tags',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 126 items
+			expect(result[0]).toHaveLength(126);
 		});
 	});
 });

@@ -250,8 +250,16 @@ describe('Forgejo Node - Release Operations', () => {
 	});
 
 	describe('Release List Operation', () => {
-		test('should list releases with pagination', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockReleaseData]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ ...mockReleaseData, id: i + 1, tag_name: `v1.0.${i + 1}` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ ...mockReleaseData, id: i + 51, tag_name: `v1.0.${i + 51}` }));
+			const page3Data = Array(18).fill(null).map((_, i) => ({ ...mockReleaseData, id: i + 101, tag_name: `v1.0.${i + 101}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -271,9 +279,14 @@ describe('Forgejo Node - Release Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -285,12 +298,53 @@ describe('Forgejo Node - Release Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/releases',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/releases',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 118 items
+			expect(result[0]).toHaveLength(118);
 		});
 	});
 
 	describe('Release Assets Operations', () => {
-		test('should list release assets', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ name: 'asset.zip' }]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ id: i + 1, name: `asset${i + 1}.zip` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ id: i + 51, name: `asset${i + 51}.zip` }));
+			const page3Data = Array(12).fill(null).map((_, i) => ({ id: i + 101, name: `asset${i + 101}.zip` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -311,9 +365,14 @@ describe('Forgejo Node - Release Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -325,6 +384,39 @@ describe('Forgejo Node - Release Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/releases/1/assets',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/repos/testuser/test-repo/releases/1/assets',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 112 items
+			expect(result[0]).toHaveLength(112);
 		});
 
 		test('should upload asset to release', async () => {

@@ -229,8 +229,16 @@ describe('Forgejo Node - Organization Operations', () => {
 	});
 
 	describe('Organization List Operation', () => {
-		test('should list organizations with pagination', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockOrganizationData]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ ...mockOrganizationData, id: i + 1, username: `org${i + 1}` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ ...mockOrganizationData, id: i + 51, username: `org${i + 51}` }));
+			const page3Data = Array(35).fill(null).map((_, i) => ({ ...mockOrganizationData, id: i + 101, username: `org${i + 101}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -248,9 +256,14 @@ describe('Forgejo Node - Organization Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -262,12 +275,53 @@ describe('Forgejo Node - Organization Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 135 items
+			expect(result[0]).toHaveLength(135);
 		});
 	});
 
 	describe('Organization List Members Operation', () => {
-		test('should list organization members', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ login: 'member1' }]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ id: i + 1, login: `member${i + 1}` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ id: i + 51, login: `member${i + 51}` }));
+			const page3Data = Array(40).fill(null).map((_, i) => ({ id: i + 101, login: `member${i + 101}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -286,9 +340,14 @@ describe('Forgejo Node - Organization Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -300,12 +359,53 @@ describe('Forgejo Node - Organization Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs/testorg/members',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs/testorg/members',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 140 items
+			expect(result[0]).toHaveLength(140);
 		});
 	});
 
 	describe('Organization List Repositories Operation', () => {
-		test('should list organization repositories', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ name: 'repo1' }]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ id: i + 1, name: `repo${i + 1}` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ id: i + 51, name: `repo${i + 51}` }));
+			const page3Data = Array(28).fill(null).map((_, i) => ({ id: i + 101, name: `repo${i + 101}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -324,9 +424,14 @@ describe('Forgejo Node - Organization Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -338,12 +443,53 @@ describe('Forgejo Node - Organization Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs/testorg/repos',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs/testorg/repos',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 128 items
+			expect(result[0]).toHaveLength(128);
 		});
 	});
 
 	describe('Organization List Teams Operation', () => {
-		test('should list organization teams', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ name: 'team1' }]);
+		test('should fetch all pages automatically', async () => {
+			// Mock responses for multiple pages
+			const page1Data = Array(50).fill(null).map((_, i) => ({ id: i + 1, name: `team${i + 1}` }));
+			const page2Data = Array(50).fill(null).map((_, i) => ({ id: i + 51, name: `team${i + 51}` }));
+			const page3Data = Array(22).fill(null).map((_, i) => ({ id: i + 101, name: `team${i + 101}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data)
+				.mockResolvedValueOnce(page3Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -362,9 +508,14 @@ describe('Forgejo Node - Organization Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 3 requests (page 1, 2, and 3)
+			expect(mockHttpRequest).toHaveBeenCalledTimes(3);
+
+			// Check first page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -376,6 +527,39 @@ describe('Forgejo Node - Organization Operations', () => {
 					},
 				})
 			);
+
+			// Check second page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				2,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs/testorg/teams',
+					json: true,
+					qs: {
+						page: 2,
+						limit: 50,
+					},
+				})
+			);
+
+			// Check third page request
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				3,
+				'forgejoApi',
+				expect.objectContaining({
+					method: 'GET',
+					url: 'https://code.squarecows.com/api/v1/orgs/testorg/teams',
+					json: true,
+					qs: {
+						page: 3,
+						limit: 50,
+					},
+				})
+			);
+
+			// Should return all 122 items
+			expect(result[0]).toHaveLength(122);
 		});
 	});
 });

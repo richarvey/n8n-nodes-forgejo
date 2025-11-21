@@ -241,8 +241,13 @@ describe('Forgejo Node - Pull Request Operations', () => {
 	});
 
 	describe('Pull Request List Operation', () => {
-		test('should list pull requests with state filter', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([mockPullRequestData]);
+		test('should fetch all pages of pull requests automatically', async () => {
+			const page1Data = Array(50).fill(null).map((_, i) => ({ ...mockPullRequestData, number: i + 1 }));
+			const page2Data = Array(25).fill(null).map((_, i) => ({ ...mockPullRequestData, number: i + 51 }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -263,9 +268,13 @@ describe('Forgejo Node - Pull Request Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -278,6 +287,9 @@ describe('Forgejo Node - Pull Request Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 75 items
+			expect(result[0]).toHaveLength(75);
 		});
 	});
 
@@ -392,8 +404,13 @@ describe('Forgejo Node - Pull Request Operations', () => {
 	});
 
 	describe('Pull Request Commits and Files', () => {
-		test('should list pull request commits', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ sha: 'abc123' }]);
+		test('should fetch all pages of commits automatically', async () => {
+			const page1Data = Array(50).fill(null).map((_, i) => ({ sha: `abc${i + 1}` }));
+			const page2Data = Array(12).fill(null).map((_, i) => ({ sha: `abc${i + 51}` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -414,9 +431,13 @@ describe('Forgejo Node - Pull Request Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -428,10 +449,18 @@ describe('Forgejo Node - Pull Request Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 62 commits
+			expect(result[0]).toHaveLength(62);
 		});
 
-		test('should list pull request files', async () => {
-			const mockHttpRequest = jest.fn().mockResolvedValue([{ filename: 'test.txt' }]);
+		test('should fetch all pages of files automatically', async () => {
+			const page1Data = Array(50).fill(null).map((_, i) => ({ filename: `file${i + 1}.txt` }));
+			const page2Data = Array(8).fill(null).map((_, i) => ({ filename: `file${i + 51}.txt` }));
+
+			const mockHttpRequest = jest.fn()
+				.mockResolvedValueOnce(page1Data)
+				.mockResolvedValueOnce(page2Data);
 
 			const mockFunctions = {
 				...createMockExecuteFunctions(
@@ -452,9 +481,13 @@ describe('Forgejo Node - Pull Request Operations', () => {
 				continueOnFail: jest.fn(() => false),
 			} as unknown as IExecuteFunctions;
 
-			await forgejoNode.execute.call(mockFunctions);
+			const result = await forgejoNode.execute.call(mockFunctions);
 
-			expect(mockHttpRequest).toHaveBeenCalledWith(
+			// Should make 2 requests
+			expect(mockHttpRequest).toHaveBeenCalledTimes(2);
+
+			expect(mockHttpRequest).toHaveBeenNthCalledWith(
+				1,
 				'forgejoApi',
 				expect.objectContaining({
 					method: 'GET',
@@ -466,6 +499,9 @@ describe('Forgejo Node - Pull Request Operations', () => {
 					},
 				})
 			);
+
+			// Should return all 58 files
+			expect(result[0]).toHaveLength(58);
 		});
 	});
 });
