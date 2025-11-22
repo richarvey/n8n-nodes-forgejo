@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Repository URL format in package.json to use `git+https://` prefix for better compatibility with n8n community package verification system
+- Updated lint scripts to use directory-based format (`eslint nodes credentials --ext .ts`) instead of glob patterns for better compatibility
 
 ## [0.1.3] - 2025-11-21
 
