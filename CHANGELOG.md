@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.8] - 2025-11-22
+
+### Changed
+- **Major change for n8n verification**: Now committing compiled `dist/` folder to repository
+  - Reverted n8n paths in package.json to point to `dist/` compiled files instead of source files
+  - Commented out `dist/` in .gitignore to track compiled output in git
+  - This ensures n8n verification can find the compiled .js files directly in the repository
+  - Compiled credential and node files are now version controlled for verification purposes
+
 ## [0.1.7] - 2025-11-22
 
 ### Changed
@@ -132,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Authentication via API token
 - Comprehensive node description and parameter definitions
 
+[0.1.8]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.7...0.1.8
 [0.1.7]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.6...0.1.7
 [0.1.6]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.5...0.1.6
 [0.1.5]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.4...0.1.5
