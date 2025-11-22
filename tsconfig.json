@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
+    "target": "ES2019",
     "module": "commonjs",
-    "target": "ES2022",
-    "lib": ["ES2022"],
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "lib": ["ES2019"],
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node"
   },
   "include": [
-    "credentials/**/*",
-    "nodes/**/*"
+    "nodes/**/*",
+    "credentials/**/*"
   ],
   "exclude": [
     "node_modules",
