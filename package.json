@@ -42,10 +42,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "credentials/ForgejoApi.credentials.ts"
+      "dist/credentials/ForgejoApi.credentials.ts"
     ],
     "nodes": [
-      "nodes/Forgejo/Forgejo.node.js"
+      "dist/nodes/Forgejo/Forgejo.node.js"
     ]
   },
   "devDependencies": {

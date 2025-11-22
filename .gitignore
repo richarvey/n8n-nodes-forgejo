@@ -51,7 +51,7 @@ jspm_packages/
 .cache
 
 # Build output
-dist/
+#dist/
 build/
 
 # IDEs
