@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-forgejo",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "n8n node for Forgejo API integration",
   "keywords": [
     "n8n-community-node-package",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://code.squarecows.com/ric/n8n-nodes-forgejo.git"
+    "url": "git+https://code.squarecows.com/ric/n8n-nodes-forgejo.git"
   },
   "engines": {
     "node": ">=18.10",
