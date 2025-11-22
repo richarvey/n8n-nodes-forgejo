@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2025-11-22
+
+### Fixed
+- **Critical fix for n8n verification**: Updated `n8n` section in package.json to point to source TypeScript files in repository instead of compiled dist files
+  - Credentials path: `credentials/ForgejoApi.credentials.ts` (was `dist/credentials/ForgejoApi.credentials.js`)
+  - Nodes path: `nodes/Forgejo/Forgejo.node.js` (was `dist/nodes/Forgejo/Forgejo.node.js`)
+  - This allows n8n verification system to find credential files in the git repository while npm package still contains compiled code
+
 ## [0.1.5] - 2025-11-22
 
 ### Fixed
@@ -116,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Authentication via API token
 - Comprehensive node description and parameter definitions
 
+[0.1.6]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.5...0.1.6
 [0.1.5]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.4...0.1.5
 [0.1.4]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.3...0.1.4
 [0.1.3]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.2...0.1.3

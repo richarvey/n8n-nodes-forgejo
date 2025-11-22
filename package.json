@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-forgejo",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "n8n node for Forgejo API integration",
   "keywords": [
     "n8n-community-node-package",
@@ -42,10 +42,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ForgejoApi.credentials.js"
+      "credentials/ForgejoApi.credentials.ts"
     ],
     "nodes": [
-      "dist/nodes/Forgejo/Forgejo.node.js"
+      "nodes/Forgejo/Forgejo.node.js"
     ]
   },
   "devDependencies": {
