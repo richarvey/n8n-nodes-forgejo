@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-11-22
+
+### Changed
+- **Breaking: Changed repository URL from Forgejo to GitHub for n8n verification compatibility**
+  - Repository: `https://github.com/richarvey/n8n-nodes-forgejo`
+  - Homepage: `https://github.com/richarvey/n8n-nodes-forgejo`
+  - n8n's verification system appears to only work with GitHub repositories despite docs mentioning "or other platform"
+  - The Forgejo instance at code.squarecows.com will remain the primary development repository
+  - GitHub will serve as a mirror for n8n community package verification purposes
+
 ## [0.1.9] - 2025-11-22
 
 ### Fixed
@@ -150,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Authentication via API token
 - Comprehensive node description and parameter definitions
 
+[0.2.0]: https://github.com/richarvey/n8n-nodes-forgejo/compare/0.1.9...0.2.0
 [0.1.9]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.8...0.1.9
 [0.1.8]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.7...0.1.8
 [0.1.7]: https://code.squarecows.com/ric/n8n-nodes-forgejo/compare/0.1.6...0.1.7
